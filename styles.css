@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg: #000000;
+    --grid: #FF3300;
+    --Red: #FF3300;
+    --Red-glow: #FF3300;
+    --Red-dim: #4D0F00;
+    --white: #FFFFFF;
+    --muted: #ffffff;
+    --navy-blue: #000080;
+    ;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+
+/* ── layout ── */
+main {
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ── second section ── */
+section {
+    min-height: 100vh;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ── ASCII hero ── */
+.ascii-wrap {
+    overflow-x: auto;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.ascii-name {
+    font-family: 'Courier New', 'Lucida Console', monospace;
+    font-size: clamp(5px, 1.05vw, 13px);
+    line-height: 1.18;
+    letter-spacing: 0;
+    white-space: pre;
+    color: var(--Red);
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 1s ease forwards 0.2s;
+}
+
+/* ── tagline ── */
+.tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(0.65rem, 1.4vw, 0.9rem);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 0.7s;
+}
+
+.tagline span {
+    color: var(--Red);
+}
+
+/* ── divider ── */
+.divider {
+    width: 250px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--Red-dim), transparent);
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1s;
+}
+
+/* ── nav links ── */
+nav {
+    display: flex;
+    gap: 2.5rem;
+    opacity: 0;
+    animation: fadeUp 1s ease forwards 1.2s;
+}
+
+nav a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--muted);
+    position: relative;
+    transition: color 0.25s;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0;
+    height: 1px;
+    background: var(--Red-glow);
+    transition: width 0.3s ease;
+}
+
+nav a:hover {
+    color: var(--Red-glow);
+    text-shadow: 0 0 10px rgba(74, 158, 255, 0.5);
+}
+
+nav a:hover::after {
+    width: 100%;
+}
+
+
+/* ── flicker on load ── */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+* {
+    scrollbar-width: none;
+}
+
+h1 {
+    font-size: 36px;
+    font-family: "Press Start 2P", monospace;
+    color: #ff4d00;
+    padding: 16px 5px;
+}
+
+.bullet {
+    color: #ff4d00;
+}
+
+a {
+    color: #FFFFFF;
+}
+
+.li {
+    padding-bottom: 12px;
+}
+
+.records {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.records h2 {
+  margin-bottom: 12px;
+}
+
+.pr-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 4px solid white;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pr-table th,
+.pr-table td {
+  padding: 14px 18px;
+  text-align: left;
+}
+
+.pr-table thead {
+  background: #1a1a1a;
+}
+
+.pr-table tbody tr {
+  border-top: 1px solid #333;
+}
+
+.pr-table tbody tr:hover {
+  background: #111;
+}
+
+.external {
+  font-size: 16px;
+}
+
+.icons {
+display: flex;
+  gap: 75px; /* space between icons */
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+
+}
+
+.button:hover {
+  size: 150%;
+}
+
