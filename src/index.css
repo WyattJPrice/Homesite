@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg-primary: #09090b;
+  --color-bg-primary: #000000;
   --color-bg-secondary: #18181b;
   --color-bg-tertiary: #27272a;
   --color-text-primary: #fafafa;
@@ -12,8 +12,8 @@
   --color-red-dim: #4D0F00;
   --color-border: #3f3f46;
 
-  --font-sans: 'Satoshi', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Space Mono', monospace;
+  --font-mono: 'Space Mono', monospace;
 }
 
 html {
