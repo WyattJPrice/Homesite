@@ -69,29 +69,36 @@ function ProjectCard({ project }) {
 export default function Projects() {
   const scrollRef = useRef(null)
   const [isDragging, setIsDragging] = useState(false)
-
-  const dragState = useRef({ startX: 0, scrollLeft: 0 })
+  const dragState = useRef({ active: false, startX: 0, scrollLeft: 0, hasMoved: false })
 
   const onMouseDown = (e) => {
     const el = scrollRef.current
     if (!el) return
-    setIsDragging(true)
+    dragState.current.active = true
     dragState.current.startX = e.pageX - el.offsetLeft
     dragState.current.scrollLeft = el.scrollLeft
+    dragState.current.hasMoved = false
   }
 
   useEffect(() => {
-    if (!isDragging) return
-
     const onMouseMove = (e) => {
+      if (!dragState.current.active) return
       const el = scrollRef.current
       if (!el) return
-      e.preventDefault()
       const x = e.pageX - el.offsetLeft
-      el.scrollLeft = dragState.current.scrollLeft - (x - dragState.current.startX)
+      const diff = x - dragState.current.startX
+      if (Math.abs(diff) > 5) {
+        dragState.current.hasMoved = true
+        setIsDragging(true)
+        e.preventDefault()
+        el.scrollLeft = dragState.current.scrollLeft - diff
+      }
     }
 
-    const onMouseUp = () => setIsDragging(false)
+    const onMouseUp = () => {
+      dragState.current.active = false
+      setIsDragging(false)
+    }
 
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
@@ -99,7 +106,14 @@ export default function Projects() {
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
     }
-  }, [isDragging])
+  }, [])
+
+  const onClickCapture = (e) => {
+    if (dragState.current.hasMoved) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+  }
 
   return (
     <section className="py-24 md:py-32" id="projects">
@@ -115,12 +129,10 @@ export default function Projects() {
             cursor: isDragging ? 'grabbing' : 'grab',
           }}
           onMouseDown={onMouseDown}
+          onClickCapture={onClickCapture}
         >
           {projects.map((project) => (
-            <div
-              key={project.title}
-              style={{ pointerEvents: isDragging ? 'none' : 'auto' }}
-            >
+            <div key={project.title}>
               <ProjectCard project={project} />
             </div>
           ))}
