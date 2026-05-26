@@ -31,8 +31,8 @@ function prListKeyboard(prs) {
 
 function prListText(prs) {
   return prs.length
-    ? prs.map(p => `*${p.Event}* — ${p.Time} (${p.Date})`).join('\n')
-    : 'No PRs recorded yet\\.'
+    ? prs.map(p => `${p.Event} — ${p.Time} (${p.Date})`).join('\n')
+    : 'No PRs recorded yet.'
 }
 
 // --------------- Redis helpers ---------------
@@ -65,7 +65,6 @@ async function showPRList(chatId) {
   await tg('sendMessage', {
     chat_id: chatId,
     text: prListText(prs),
-    parse_mode: 'MarkdownV2',
     reply_markup: prListKeyboard(prs),
   })
 }
