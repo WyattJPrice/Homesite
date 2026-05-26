@@ -157,6 +157,11 @@ export default async function handler(req, res) {
 
     const { action, step, event, orig } = state
     const keep = (current) => text.toLowerCase() === 'same' ? current : text
+    const resolveDate = (input) => {
+      if (input.toLowerCase() !== 'today') return input
+      const d = new Date()
+      return `${d.getMonth() + 1}/${d.getDate()}/${String(d.getFullYear()).slice(-2)}`
+    }
 
     if (action === 'add') {
       if (step === 'event') {
@@ -165,10 +170,10 @@ export default async function handler(req, res) {
 
       } else if (step === 'time') {
         await setState(chatId, { ...state, step: 'date', time: text })
-        await tg('sendMessage', { chat_id: chatId, text: 'Date? (e.g. 2026-05-01)' })
+        await tg('sendMessage', { chat_id: chatId, text: 'Date? (e.g. 5/26/26 or "today")' })
 
       } else if (step === 'date') {
-        await setState(chatId, { ...state, step: 'link', date: text })
+        await setState(chatId, { ...state, step: 'link', date: resolveDate(text) })
         await tg('sendMessage', { chat_id: chatId, text: 'Link to result? (or "skip")' })
 
       } else if (step === 'link') {
@@ -188,10 +193,11 @@ export default async function handler(req, res) {
     } else if (action === 'edit') {
       if (step === 'time') {
         await setState(chatId, { ...state, step: 'date', time: keep(orig.Time) })
-        await tg('sendMessage', { chat_id: chatId, text: `Date? Current: ${orig.Date} (or "same")` })
+        await tg('sendMessage', { chat_id: chatId, text: `Date? Current: ${orig.Date} (or "same"/"today")` })
 
       } else if (step === 'date') {
-        await setState(chatId, { ...state, step: 'link', date: keep(orig.Date) })
+        const raw = text.toLowerCase() === 'same' ? orig.Date : resolveDate(text)
+        await setState(chatId, { ...state, step: 'link', date: raw })
         await tg('sendMessage', { chat_id: chatId, text: `Link? Current: ${orig.Link || '(none)'} (or "same")` })
 
       } else if (step === 'link') {
