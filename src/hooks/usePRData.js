@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVAoQGsjSthEljLvDi6TLgdYXN-7TIcxOWufhsKY8UE-lDRHYs7IStEAkyXv22nX04j-gsnsi2mvaV7owQvS1_xCvhIyh7zDUmqQxqxshmledPzAvO_Do8FQyqlLmtyWtkN5jTW-XgrnQssaIQLyAQwoq8gKYrV32TFQpmAOYe3cVHOzDyLBxurngOfSUuzDaWueI-UCjHszC8FoPfqf-DWBg9d6-LSDww_-LEiYZob-MdjHCF34Sooo9o9jypZAPh_Px1ko3JxwFJg925rJN11Kfm618n064u0iprr&lib=MzcgtH_UmsaJrGGgPMpu8tNLt_jJa8ORx"
+const API_URL = "/api/prs"
 
 const CACHE_KEY = 'pr-data'
 
