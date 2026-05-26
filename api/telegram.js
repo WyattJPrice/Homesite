@@ -7,11 +7,13 @@ const ALLOWED_CHAT = process.env.TELEGRAM_CHAT_ID ? Number(process.env.TELEGRAM_
 // --------------- Telegram API helpers ---------------
 
 async function tg(method, body) {
-  await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
+  if (!TOKEN) { console.error('[telegram] TELEGRAM_BOT_TOKEN is not set'); return }
+  const res = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
+  if (!res.ok) console.error('[telegram] tg error', method, await res.text())
 }
 
 // --------------- UI builders ---------------
