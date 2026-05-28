@@ -16,6 +16,14 @@ export const projects = [
     image: '/projects/levee.png',
   },
   {
+    title: 'Mileage Tracker',
+    description: 'Interactive visualization of every mile I\’ve recorded on Strava.',
+    tech: ['Next.js', 'TypeScript', 'Upstash'],
+    github: 'https://github.com/WyattJPrice/MileageTracker',
+    live: 'https:/miles.wyattprice.dev',
+    image: '/projects/Miles.png',
+  },
+  {
     title: 'Make It Big',
     description: 'A web port of the iOS app "Make it Big" by An Trinh.',
     tech: ['JavaScript', 'HTML', 'CSS'],
@@ -30,5 +38,5 @@ export const projects = [
     github: 'https://github.com/WyattJPrice/quiz-site',
     live: 'https://study.wyattprice.dev',
     image: '/projects/study.png',
-  },
+  }
 ]
