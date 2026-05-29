@@ -349,7 +349,8 @@ export default async function handler(req, res) {
       const { data } = state
 
       if (step === 'other_name') {
-        await setState(chatId, { ...state, step: 'time', data: { ...data, currentEvent: text } })
+        const otherEvents = [...(data.otherEvents || []), text]
+        await setState(chatId, { ...state, step: 'time', data: { ...data, currentEvent: text, otherEvents } })
         await tg('sendMessage', { chat_id: chatId, text: `What was your ${text} time?` })
 
       } else if (step === 'meet') {
@@ -367,29 +368,34 @@ export default async function handler(req, res) {
         })
 
       } else if (step === 'time') {
-        const { currentEvent, meet, date, completed } = data
+        const { currentEvent, meet, date, completed, otherEvents } = data
+        const isOther = (otherEvents || []).includes(currentEvent)
         const prs = await getPRs()
-        const pr = prs.find(p => p.Event === currentEvent)
-        const newSecs = parseTime(text)
-        const isPR = !pr || newSecs < parseTime(pr.Time)
 
         const existingRaces = await getRaces()
         await setRaces([...existingRaces, { date, event: currentEvent, time: text, meet }])
 
-        const newCompleted = [...completed, { event: currentEvent, time: text, prBroken: isPR }]
+        const newCompleted = [...completed, { event: currentEvent, time: text, prBroken: false }]
 
-        if (isPR) {
-          await setState(chatId, { ...state, step: 'url', data: { ...data, pendingTime: text, completed: newCompleted } })
-          const prev = pr ? ` Previous: ${pr.Time}.` : ' (new event!)'
-          await tg('sendMessage', { chat_id: chatId, text: `🎉 New PR!${prev} Result URL? (or "skip")` })
-        } else {
-          await setState(chatId, { ...state, step: 'events', data: { ...data, completed: newCompleted } })
-          await tg('sendMessage', {
-            chat_id: chatId,
-            text: `${currentEvent} recorded (not a PR).`,
-            reply_markup: raceEventKeyboard(prs, newCompleted),
-          })
+        if (!isOther) {
+          const pr = prs.find(p => p.Event === currentEvent)
+          const isPR = !pr || parseTime(text) < parseTime(pr.Time)
+          newCompleted[newCompleted.length - 1].prBroken = isPR
+
+          if (isPR) {
+            await setState(chatId, { ...state, step: 'url', data: { ...data, pendingTime: text, completed: newCompleted } })
+            const prev = pr ? ` Previous: ${pr.Time}.` : ' (new event!)'
+            await tg('sendMessage', { chat_id: chatId, text: `🎉 New PR!${prev} Result URL? (or "skip")` })
+            return res.status(200).end()
+          }
         }
+
+        await setState(chatId, { ...state, step: 'events', data: { ...data, completed: newCompleted } })
+        await tg('sendMessage', {
+          chat_id: chatId,
+          text: `${currentEvent} recorded${isOther ? '.' : ' (not a PR).'}`,
+          reply_markup: raceEventKeyboard(prs, newCompleted),
+        })
 
       } else if (step === 'url') {
         const { currentEvent, pendingTime, date, completed } = data
