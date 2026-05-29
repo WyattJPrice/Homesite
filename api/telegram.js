@@ -29,6 +29,16 @@ function prListKeyboard(prs) {
   return { inline_keyboard: rows }
 }
 
+function urlUpdateKeyboard(prs) {
+  const rows = []
+  for (let i = 0; i < prs.length; i += 2) {
+    const row = [{ text: prs[i].Event, callback_data: `url_sel:${prs[i].Event}` }]
+    if (prs[i + 1]) row.push({ text: prs[i + 1].Event, callback_data: `url_sel:${prs[i + 1].Event}` })
+    rows.push(row)
+  }
+  return { inline_keyboard: rows }
+}
+
 function prListText(prs) {
   return prs.length
     ? prs.map(p => `${p.Event} — ${p.Time} (${p.Date})`).join('\n')
@@ -82,7 +92,7 @@ function toISO(input) {
 
 function isoToDisplay(iso) {
   const [y, m, d] = iso.split('-')
-  return `${parseInt(m)}/${parseInt(d)}/${y}`
+  return `${parseInt(m)}/${parseInt(d)}/${String(y).slice(-2)}`
 }
 
 async function getRaces() {
@@ -102,6 +112,7 @@ function raceEventKeyboard(prs, completed) {
     if (remaining[i + 1]) row.push({ text: remaining[i + 1].Event, callback_data: `rd_event:${remaining[i + 1].Event}` })
     rows.push(row)
   }
+  rows.push([{ text: '➕ Other event', callback_data: 'rd_other' }])
   rows.push([{ text: '✅ Done', callback_data: 'rd_done' }])
   return { inline_keyboard: rows }
 }
@@ -183,6 +194,24 @@ export default async function handler(req, res) {
         await tg('sendMessage', { chat_id: chatId, text: `What was your ${eventName} time?` })
       }
 
+    } else if (data.startsWith('url_sel:')) {
+      const event = data.slice(8)
+      const prs = await getPRs()
+      const pr = prs.find(p => p.Event === event)
+      if (!pr) return res.status(200).end()
+      await setState(chatId, { action: 'urlupdate', step: 'url', event })
+      await tg('sendMessage', {
+        chat_id: chatId,
+        text: `${event}\nCurrent URL: ${pr.Link || '(none)'}\n\nNew URL? (or "remove" to clear)`,
+      })
+
+    } else if (data === 'rd_other') {
+      const rdState = await getState(chatId)
+      if (rdState?.action === 'raceday') {
+        await setState(chatId, { ...rdState, step: 'other_name' })
+        await tg('sendMessage', { chat_id: chatId, text: 'What event? (e.g. 5K, Mile, 4x800m)' })
+      }
+
     } else if (data === 'rd_done') {
       const rdState = await getState(chatId)
       if (rdState?.action === 'raceday') {
@@ -220,6 +249,17 @@ export default async function handler(req, res) {
 
     if (text === '/pr' || text.startsWith('/pr@')) {
       await showPRList(chatId)
+      return res.status(200).end()
+    }
+
+    if (text === '/urlupdate' || text.startsWith('/urlupdate@')) {
+      const prs = await getPRs()
+      await clearState(chatId)
+      await tg('sendMessage', {
+        chat_id: chatId,
+        text: 'Which PR result URL do you want to update?',
+        reply_markup: urlUpdateKeyboard(prs),
+      })
       return res.status(200).end()
     }
 
@@ -291,10 +331,28 @@ export default async function handler(req, res) {
         })
       }
 
+    } else if (action === 'urlupdate') {
+      if (step === 'url') {
+        const link = text.toLowerCase() === 'remove' ? '' : text
+        const prs = await getPRs()
+        const updated = prs.map(p => p.Event !== event ? p : { ...p, Link: link })
+        await setPRs(updated)
+        await clearState(chatId)
+        await tg('sendMessage', {
+          chat_id: chatId,
+          text: `${event} URL ${link ? 'updated' : 'removed'} ✅`,
+          reply_markup: urlUpdateKeyboard(updated),
+        })
+      }
+
     } else if (action === 'raceday') {
       const { data } = state
 
-      if (step === 'meet') {
+      if (step === 'other_name') {
+        await setState(chatId, { ...state, step: 'time', data: { ...data, currentEvent: text } })
+        await tg('sendMessage', { chat_id: chatId, text: `What was your ${text} time?` })
+
+      } else if (step === 'meet') {
         await setState(chatId, { ...state, step: 'date', data: { ...data, meet: text } })
         await tg('sendMessage', { chat_id: chatId, text: 'Date? (or "today")' })
 
