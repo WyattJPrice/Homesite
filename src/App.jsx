@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react'
 import Hero from './sections/Hero'
 import About from './sections/About'
 import PersonalRecords from './sections/PersonalRecords'
@@ -16,6 +17,7 @@ export default function App() {
       <div className="max-w-[900px] mx-auto px-6 md:px-12">
         <Contact />
       </div>
+      <Analytics />
     </div>
   )
 }
