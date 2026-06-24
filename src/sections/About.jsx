@@ -30,7 +30,7 @@ export default function About() {
           </a>
         </li>
         <li>4.0 GPA</li>
-        <li>28 ACT</li>
+        <li>31 ACT</li>
       </ul>
     </section>
   )
